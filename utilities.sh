@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 set -e
 
@@ -32,21 +33,21 @@ case "$COMMAND" in
   aws)
     case "$ACTION" in
       login)
-        source ./modules/community/aws/login/aws_login.sh
+        source "$SCRIPT_DIR/modules/community/aws/login/aws_login.sh"
         aws_login $3
         ;;
       profile)
         case "$3" in
           add)
-            source ./modules/community/aws/profile/add/aws_profile_add.sh
+            source "$SCRIPT_DIR/modules/community/aws/profile/add/aws_profile_add.sh"
             profile_data=$(aws_profile_add)
             IFS=';' read -r -a profile_data_array <<< "$profile_data"
             echo "${profile_data_array[@]}"
-            source ./modules/community/aws/login/aws_login.sh
+            source "$SCRIPT_DIR/modules/community/aws/login/aws_login.sh"
             aws_new_login "${profile_data_array[0]}" "${profile_data_array[1]}" "${profile_data_array[2]}" "${profile_data_array[3]}"
             ;;
           list)
-            cat ./data/modules/community/aws/aws_profiles.txt
+            cat "$SCRIPT_DIR/.data/modules/community/aws/aws_profiles.txt"
             ;;
           *)
             echo "Usage: $0 aws profile [add|list]"
@@ -103,27 +104,6 @@ case "$COMMAND" in
     ;;
   --version)
     cat .version
-    ;;
-  module)
-    case "$ACTION" in
-      upsert)
-        if [[ -z "$3" ]]; then
-          error "Module name cannot be empty"
-        fi
-
-        if [ ! -d  "./community/modules/$3" ]; then
-          error "Module $3 does not exist"
-        fi
-        rm -rf ./modules/community/$3
-        rsync -a \
-          --exclude 'README.md' \
-          ./community/modules/$3/ ./modules/community/$3/
-        ;;
-      *)
-        echo "Usage: $0 module [upsert]"
-        exit 1
-        ;;
-    esac
     ;;
   onboarding)
     read -p "Version Control System [github.com]: " vcs

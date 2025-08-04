@@ -25,10 +25,10 @@ if [[ -z "$VERSION" ]]; then
   echo "📌 Última versión encontrada: $VERSION"
 fi
 
-
-
 INSTALL_DIR="$HOME/.local/$ALIAS"
-PRESERVE_DIR="$INSTALL_DIR/$REPOSITORY-$VERSION/modules/private"
+PRIVATE_MODULES_DIR="$INSTALL_DIR/$REPOSITORY-$VERSION/modules/private"
+DATA_DIR="$INSTALL_DIR/$REPOSITORY-$VERSION/.data"
+
 
 ZIP_URL="https://github.com/$REPOSITORY_OWNER/$REPOSITORY/releases/download/release%2F$VERSION/$REPOSITORY-$VERSION.zip"
 TMP_DIR=$(mktemp -d)
@@ -40,9 +40,15 @@ curl -L "$ZIP_URL" -o $TMP_DIR/$REPOSITORY-$VERSION.zip
 echo "🛠️ Preparando instalación..."
 
 # Preservar 'modules/private' si existe
-if [[ -d "$PRESERVE_DIR" ]]; then
-  echo "🛡️ Making backup of $PRESERVE_DIR..."
-  mv "$PRESERVE_DIR" "$TMP_DIR/private_backup"
+if [[ -d "$PRIVATE_MODULES_DIR" ]]; then
+  echo "🛡️ Making backup of $PRIVATE_MODULES_DIR..."
+  mv "$PRIVATE_MODULES_DIR" "$TMP_DIR/private_backup"
+fi
+
+# Preservar '.data' si existe
+if [[ -d "$DATA_DIR" ]]; then
+  echo "🛡️ Making backup of $DATA_DIR..."
+  mv "$DATA_DIR" "$TMP_DIR/data_backup"
 fi
 
 # Make backup of previous installation
@@ -59,9 +65,16 @@ unzip -q "$ZIP_FILE" -d "$INSTALL_DIR"
 
 # Restaurar 'modules/private' si se había preservado
 if [[ -d "$TMP_DIR/private_backup" ]]; then
-  echo "🔁 Restaurando $PRESERVE_DIR..."
+  echo "🔁 Restaurando $PRIVATE_MODULES_DIR..."
   mkdir -p "$INSTALL_DIR/modules"
-  mv "$TMP_DIR/private_backup" "$PRESERVE_DIR"
+  mv "$TMP_DIR/private_backup" "$PRIVATE_MODULES_DIR"
+fi
+
+# Restaurar '.data' si se había preservado
+if [[ -d "$DATA_DIR/data_backup" ]]; then
+  echo "🔁 Restaurando $DATA_DIR..."
+  mkdir -p "$INSTALL_DIR/.data"
+  mv "$TMP_DIR/data_backup" "$DATA_DIR"
 fi
 
 # Limpiar
