@@ -31,5 +31,5 @@ function aws_login() {
         profile_role=${profile_data_array[2]}
         profile_region=${profile_data_array[3]}
         aws_new_login $profile_name $profile_duration $profile_role $profile_region
-    done < aws_profiles.txt
+    done < "$SCRIPT_DIR/.data/modules/community/aws/aws_profiles.txt"
 }

@@ -18,6 +18,6 @@ function aws_profile_add() {
         region=us-east-1
     fi
     profile="$profile_name;$session_duration;$role_arn;$region"
-    echo "$profile" >> aws_profiles.txt
+    echo "$profile" >> "$SCRIPT_DIR/.data/modules/community/aws/aws_profiles.txt"
     echo "$profile"
 }
